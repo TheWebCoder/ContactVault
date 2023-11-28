@@ -7,19 +7,34 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ContactVault.Data;
 using ContactVault.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using ContactVault.Enums;
+using ContactVault.Services.Interfaces;
+using ContactVault.Services;
 
 namespace ContactVault.Controllers
 {
     public class ContactsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly IimageService _imageService;
+        private readonly IAddressBookService _addressBookService;
 
-        public ContactsController(ApplicationDbContext context)
+        public ContactsController(ApplicationDbContext context, 
+                                  UserManager<AppUser> userManager,
+                                  IimageService imageService,
+                                  IAddressBookService addressBookService)
         {
             _context = context;
+            _userManager = userManager;
+            _imageService = imageService;
+            _addressBookService = addressBookService;
         }
 
         // GET: Contacts
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.Contacts.Include(c => c.AppUser);
@@ -27,6 +42,7 @@ namespace ContactVault.Controllers
         }
 
         // GET: Contacts/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Contacts == null)
@@ -46,9 +62,12 @@ namespace ContactVault.Controllers
         }
 
         // GET: Contacts/Create
-        public IActionResult Create()
+        [Authorize]
+        public async Task<IActionResult> Create()
         {
-            ViewData["AppUserID"] = new SelectList(_context.Users, "Id", "Id");
+            string appUserId = _userManager.GetUserId(User);
+            ViewData["StatesList"] = new SelectList(Enum.GetValues(typeof(States)).Cast<States>().ToList());
+            ViewData["CategoryList"] = new MultiSelectList(await _addressBookService.GetUserCategoriesAsync(appUserId), "Id", "Name");
             return View();
         }
 
@@ -57,19 +76,46 @@ namespace ContactVault.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,AppUserID,FirstName,LastName,BirthDate,Address1,Address2,City,States,ZipCode,EmailAddress,PhoneNumber,Created,ImageData,ImageType")] Contact contact)
+        public async Task<IActionResult> Create([Bind("Id,FirstName,LastName,BirthDate,Address1,Address2,City,States,ZipCode,EmailAddress,PhoneNumber,ImageFile")] Contact contact, List<int> CategoryList)
         {
+            ModelState.Remove("AppUserId");
+
             if (ModelState.IsValid)
             {
+                contact.AppUserID = _userManager.GetUserId(User);
+                contact.Created = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
+
+                if (contact.BirthDate != null)
+                {
+                    contact.BirthDate = DateTime.SpecifyKind(contact.BirthDate.Value, DateTimeKind.Utc);
+                }
+
+                if (contact.ImageFile != null)
+                {
+                    contact.ImageData = await _imageService.ConvertFileToByteArrayAsync(contact.ImageFile);
+                    contact.ImageType = contact.ImageFile.ContentType;
+                }
+
                 _context.Add(contact);
                 await _context.SaveChangesAsync();
+
+                //loop over all the selected categories
+                foreach (int categoryId in CategoryList)
+                {
+                    await _addressBookService.AddContactToCategoryAsync(categoryId, contact.Id);
+                }
+                //save each category selected to the contactcategories table
+
+
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AppUserID"] = new SelectList(_context.Users, "Id", "Id", contact.AppUserID);
-            return View(contact);
+            
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Contacts/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Contacts == null)
@@ -123,6 +169,7 @@ namespace ContactVault.Controllers
         }
 
         // GET: Contacts/Delete/5
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Contacts == null)

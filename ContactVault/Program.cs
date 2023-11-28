@@ -1,5 +1,7 @@
 using ContactVault.Data;
 using ContactVault.Models;
+using ContactVault.Services.Interfaces;
+using ContactVault.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,6 +27,10 @@ namespace ContactVault
             builder.Services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddControllersWithViews();
+
+            //Custom Services
+            builder.Services.AddScoped<IimageService, ImageService>();
+            builder.Services.AddScoped<IAddressBookService, AddressBookService>();
 
             var app = builder.Build();
 
