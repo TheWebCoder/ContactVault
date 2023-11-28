@@ -28,6 +28,7 @@ namespace ContactVault.Services
                     {
                         category.Contacts.Add(contact);
                         await _context.SaveChangesAsync();
+
                     }
                 }
                 
