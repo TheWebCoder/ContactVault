@@ -4,6 +4,8 @@ using ContactVault.Services.Interfaces;
 using ContactVault.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using ContactVault.Helpers;
 
 namespace ContactVault
 {
@@ -12,13 +14,13 @@ namespace ContactVault
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-             
+
 
             // Add services to the container.
             //var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-            var connectionString = builder.Configuration.GetSection("pgSettings")["pgConnection"] ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-
+            //var connectionString = builder.Configuration.GetSection("pgSettings")["pgConnection"] ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            var connectionString = ConnectionHelper.GetConnectionString(builder.Configuration);
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(connectionString));
@@ -31,6 +33,8 @@ namespace ContactVault
             //Custom Services
             builder.Services.AddScoped<IimageService, ImageService>();
             builder.Services.AddScoped<IAddressBookService, AddressBookService>();
+            builder.Services.AddScoped<IEmailSender, EmailService>();
+            builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 
             var app = builder.Build();
 
@@ -45,6 +49,8 @@ namespace ContactVault
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            app.UseStatusCodePagesWithReExecute("/Home/HandleError/{0}");
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
