@@ -1,6 +1,7 @@
 :root {
-    --cf-primaryColor: #0869b8;
-    --cf-primaryColorDark: #002a4e;
+    --cf-primaryColor: #1A8D8C;
+    // --cf-primaryColor: #0869b8;
+    --cf-primaryColorDark: rgba(0,0,0,.9);
     --cf-primaryColorLight: #edf5fc;
     --cf-secondaryColor: #fff0d9;
     --cf-secondaryColorLight: #FFF8EC;
@@ -141,11 +142,11 @@ main {
 .editIcons {
     font-size: 1.5rem;
     opacity: .9;
-    color: var(--cf-primaryColorDark);
+    color: var(--cf-primaryColor);
 }
 
     .editIcons:hover {
-        color: var(--cf-primaryColor);
+        color: var(--cf-primaryColorDark);
         font-weight: bold;
         opacity: 1;
         cursor: pointer;
@@ -167,13 +168,13 @@ main {
 }
 
 .socialicons {
-    color: var(--cf-primaryColorDark);
+    color: var(--cf-primaryColor);
     opacity: .9;
     font-size: 2rem;
 }
 
     .socialicons:hover {
-        color: var(--cf-primaryColor);
+        color: var(--cf-primaryColorDark);
         opacity: 1;
         cursor: pointer;
     }
