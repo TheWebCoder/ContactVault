@@ -50,7 +50,7 @@ body {
 
     .btn-primary:hover {
         filter: brightness(1.2) !important;
-        border-color: var(--cf-primaryColorDark);
+        border-color: var(--cf-secondary-color);
     }
 
     .btn-primary:active,
@@ -198,6 +198,11 @@ main {
     height: 100%;
     object-fit: cover;
     object-position: top;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    color: #fff;
+    background-color: #0B0B0B;
 }
 
 

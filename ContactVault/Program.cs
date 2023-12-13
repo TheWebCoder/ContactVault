@@ -11,7 +11,7 @@ namespace ContactVault
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +37,11 @@ namespace ContactVault
             builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 
             var app = builder.Build();
+            var scope = app.Services.CreateScope();
+            // get the database update with the latest migrations
+            await DataHelper.ManageDataAsync(scope.ServiceProvider); 
+
+
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
