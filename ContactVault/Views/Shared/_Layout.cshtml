@@ -43,15 +43,18 @@
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <ul class="navbar-nav me-auto mb-2 mb-md-0">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link @((ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index") ? "active" : "")"
+                               asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         @if (SignInManager.IsSignedIn(User))
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Contacts" asp-action="Index">Contacts</a>
+                                <a class="nav-link @((ViewContext.RouteData.Values["Controller"]?.ToString() == "Contacts") ? "active" : "")"
+                                   asp-area="" asp-controller="Contacts" asp-action="Index">Contacts</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Categories" asp-action="Index">Categories</a>
+                                <a class="nav-link @((ViewContext.RouteData.Values["Controller"]?.ToString() == "Categories") ? "active" : "")"
+                                   asp-area="" asp-controller="Categories" asp-action="Index">Categories</a>
                             </li>
                         }
                     </ul>
