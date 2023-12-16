@@ -7,8 +7,8 @@ namespace ContactVault.Helpers
         public static string GetConnectionString(IConfiguration configuration)
         {
             var connectionString = configuration.GetSection("pgSettings")["pgConnection"];
-            //var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-            var databaseUrl = configuration.GetSection("herokuSettings")["herokuConnection"];
+            var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+            //var databaseUrl = configuration.GetSection("herokuSettings")["herokuConnection"];
 
             return string.IsNullOrEmpty(databaseUrl) ? connectionString : BuildConnectionString(databaseUrl);
         }
@@ -25,7 +25,7 @@ namespace ContactVault.Helpers
                 Username = userInfo[0],
                 Password = userInfo[1],
                 Database = databaseUri.LocalPath.TrimStart('/'),
-                SslMode = SslMode.Require,
+                SslMode = SslMode.Prefer,
                 TrustServerCertificate = true
             };
 
@@ -34,3 +34,5 @@ namespace ContactVault.Helpers
 
     }
 }
+
+
